@@ -164,7 +164,9 @@ public class ExplorerFragment extends Fragment {
         if (mFile == null) {
             mFile = new File(getArguments().getString(FILE_PATH_ARG));
         }
-        setSubFiles();
+        if (!((ExplorerActivity) getActivity()).isInSearchMode()) {
+            setSubFiles();
+        }
         mAdapter = new ExplorerAdapter((ExplorerActivity) getActivity(), mFile.getParentFile() != null, mSubFiles,
                 mBinaryClickListener, mDirectoryClickListener, mUpClickListener,
                 mItemOverflowClickListener, mLongCheckedListener, mCheckedModeClickListener);
@@ -235,7 +237,7 @@ public class ExplorerFragment extends Fragment {
         mListView.setVisibility(View.INVISIBLE);
         mFile = file;
         setSubFiles();
-        mAdapter.setHasUpHeader(mFile.getParentFile() != null);
+        mAdapter.setHasUpHeader(hasUpHeader());
         mAdapter.notifyDataSetChanged();
 
         if (position > mAdapter.getCount()) {
@@ -250,8 +252,6 @@ public class ExplorerFragment extends Fragment {
                 mListView.setVisibility(View.VISIBLE);
             }
         });
-        ((ExplorerActivity) getActivity()).setSearchHint(
-                getString(R.string.search_hint, mFile.getName()));
     }
 
     private void setupContextualItemMenu(final Bundle savedInstanceState) {
@@ -433,8 +433,15 @@ public class ExplorerFragment extends Fragment {
 
     public final void refreshFile() {
         setSubFiles();
-        mAdapter.setHasUpHeader(mFile.getParentFile() != null);
+        mAdapter.setHasUpHeader(hasUpHeader());
         mAdapter.notifyDataSetChanged();
+    }
+
+    /*
+     * use for when only the order of the subfiles needs to change
+     */
+    public final void refreshSubFileOrder() {
+        ((ExplorerActivity) getActivity()).doSort(mSubFiles);
     }
 
     private void beginToDelete(final ArrayList<File> files) {
@@ -601,8 +608,28 @@ public class ExplorerFragment extends Fragment {
                 return map.get(file0).compareTo(map.get(file1));
             }
         });
-        mAdapter.setHasUpHeader(mFile.getParentFile() != null);
+        mAdapter.setHasUpHeader(hasUpHeader());
         mAdapter.notifyDataSetChanged();
         ((ExplorerActivity) getActivity()).cacheSubFiles(mFile, mSubFiles);
+    }
+
+    private boolean hasUpHeader() {
+        return !((ExplorerActivity) getActivity()).isInSearchMode()
+                && mFile.getParentFile() != null;
+    }
+
+    /*
+     * Just clears the list of subfiles.
+     */
+    public void clearSubfiles() {
+        mSubFiles.clear();
+        mAdapter.notifyDataSetChanged();
+        //FileUtils.searchFile(mSubFiles, mFile, query);
+    }
+
+    public void doCompletedSearching(List<FileItem> fileList) {
+        mSubFiles.clear();
+        mSubFiles.addAll(fileList);
+        mAdapter.notifyDataSetChanged();
     }
 }

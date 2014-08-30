@@ -87,8 +87,13 @@
     <string name="parent_directory_symbol">..</string>
 
     <string name="search">Search</string>
+    <string name="searching">Searching for "&lt;b>%1$s&lt;/b>" in &lt;b>%2$s&lt;/b>
+        &lt;br/>&lt;b>%3$d&lt;/b> results so far</string>
     <string name="search_files">Search Files</string>
     <string name="search_voice_hint">Search Files</string>
     <string name="search_hint">Search %1$s</string>
+
+    <string name="sdcard_short_name">sdcard</string>
+    <string name="root_storage">/storage</string>
 
 </resources>

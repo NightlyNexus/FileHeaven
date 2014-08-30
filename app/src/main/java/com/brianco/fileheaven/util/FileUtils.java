@@ -211,13 +211,24 @@ public class FileUtils {
         }
     }
 
+    public static ArrayList<FileItem> getFileItemList(List<File> fileList) {
+        if (fileList == null) {
+            return new ArrayList<FileItem>(0);
+        }
+        final ArrayList<FileItem> fileItemList = new ArrayList<FileItem>(fileList.size());
+        for (File file : fileList) {
+            fileItemList.add(new FileItem(file));
+        }
+        return fileItemList;
+    }
+
     public static List<FileItem> getFileItemList(File[] fileArr) {
         if (fileArr == null) {
             return new ArrayList<FileItem>(0);
         }
         final List<FileItem> fileItemList = new ArrayList<FileItem>(fileArr.length);
         for (File file : fileArr) {
-            fileItemList.add(new FileItem(file.getPath()));
+            fileItemList.add(new FileItem(file));
         }
         return fileItemList;
     }

@@ -17,6 +17,10 @@ public class FileItem extends File implements Parcelable {
     public Drawable image = null;
     public long size = -1;
 
+    public FileItem(final File file) {
+        this(file.getPath());
+    }
+
     public FileItem(File dir, String name) {
         super(dir, name);
     }

@@ -33,8 +33,10 @@ import android.widget.TextView;
 
 import com.brianco.fileheaven.dialogactivity.NewFileActivity;
 import com.brianco.fileheaven.taskfragment.PasteFragment;
+import com.brianco.fileheaven.taskfragment.SearchFragment;
 import com.brianco.fileheaven.taskfragment.SortFragment;
 import com.brianco.fileheaven.taskfragment.ZipFragment;
+import com.brianco.fileheaven.util.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,6 +54,8 @@ public class ExplorerActivity extends Activity {
     public static final int SORT_BY_SIZE_HIGH = 4;
     public static final int SORT_BY_LAST_MODIFIED = 5;
 
+    private static final String KEY_IS_IN_SEARCH_MODE = "KEY_IS_IN_SEARCH_MODE";
+    private static final String KEY_STORED_QUERY = "KEY_STORED_QUERY";
     private static final String KEY_CACHE_MAP = "KEY_CACHE_MAP";
     private static final String EXPLORER_FRAGMENT_KEY = "EXPLORER_FRAGMENT_KEY";
     private static final String FILE_HISTORY_LIST_KEY = "FILE_HISTORY_LIST_KEY";
@@ -62,8 +66,13 @@ public class ExplorerActivity extends Activity {
     private static final String KEY_PASTE_FRAGMENT = "KEY_PASTE_FRAGMENT";
     private static final String TAG_SORT_FRAGMENT = "TAG_SORT_FRAGMENT";
     private static final String KEY_SORT_FRAGMENT = "KEY_SORT_FRAGMENT";
+    private static final String TAG_SEARCH_FRAGMENT = "TAG_SEARCH_FRAGMENT";
+    private static final String KEY_SEARCH_FRAGMENT = "KEY_SEARCH_FRAGMENT";
     private static final int NEW_FILE_REQUEST_CODE = 1;
 
+    private boolean mIsInSearchMode;
+    private CharSequence mStoredQuery;
+    private MenuItem mSearchItem;
     private int mShortAnimationDuration;
     private Rect mStartBounds;
     private float mStartScaleFinal;
@@ -76,6 +85,7 @@ public class ExplorerActivity extends Activity {
     private Fragment mZipFragment;
     private Fragment mPasteFragment;
     private SortFragment mSortFragment;
+    private Fragment mSearchFragment;
     private ArrayList<String> mFileHistory;
     private ArrayList<Integer> mPositionHistory;
     private HashMap<File, ArrayList<FileItem>> mSubFileMap;
@@ -100,6 +110,7 @@ public class ExplorerActivity extends Activity {
         getActionBar().setDisplayShowCustomEnabled(true);
         getActionBar().setCustomView(mTitleScrollView);
         if (savedInstanceState == null) {
+            mIsInSearchMode = false;
             mFileHistory = new ArrayList<String>();
             mPositionHistory = new ArrayList<Integer>();
             mSubFileMap = new HashMap<File, ArrayList<FileItem>>();
@@ -112,6 +123,8 @@ public class ExplorerActivity extends Activity {
                     .add(R.id.container, mFragment)
                     .commit();
         } else {
+            mIsInSearchMode = savedInstanceState.getBoolean(KEY_IS_IN_SEARCH_MODE);
+            mStoredQuery = savedInstanceState.getCharSequence(KEY_STORED_QUERY);
             mFragment = (ExplorerFragment) getFragmentManager()
                     .getFragment(savedInstanceState, EXPLORER_FRAGMENT_KEY);
             mFileHistory = savedInstanceState.getStringArrayList(FILE_HISTORY_LIST_KEY);
@@ -124,12 +137,22 @@ public class ExplorerActivity extends Activity {
                     .getFragment(savedInstanceState, KEY_PASTE_FRAGMENT);
             mSortFragment = (SortFragment) getFragmentManager()
                     .getFragment(savedInstanceState, KEY_SORT_FRAGMENT);
+            mSearchFragment = getFragmentManager()
+                    .getFragment(savedInstanceState, KEY_SEARCH_FRAGMENT);
         }
         setPathTitle();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleSearchIntent();
+    }
+
     public void setCurrentFile(final File file, final int previousPosition) {
         if (requestRootIfNeeded(file)) {
+            mSearchItem.collapseActionView(); // will exit search mode
             mPositionHistory.add(previousPosition);
             mFileHistory.add(file.getPath());
             refreshCurrentFile(0);
@@ -139,6 +162,7 @@ public class ExplorerActivity extends Activity {
     private void refreshCurrentFile(final int position) {
         mFragment.setFile(new File(getCurrentFilePath()), position);
         setPathTitle();
+        setSearchHint();
     }
 
     private void setPathTitle() {
@@ -146,7 +170,7 @@ public class ExplorerActivity extends Activity {
         String path = getCurrentFilePath();
         final String rootPath = Environment.getExternalStorageDirectory().getPath();
         if (path.contains(rootPath)) {
-            path = path.replace(rootPath, "/sdcard");
+            path = path.replace(rootPath, getString(R.string.sdcard_short_name));
         }
         String[] names = path.split("/");
         List<View> pathViews = new ArrayList<View>(names.length);
@@ -187,6 +211,26 @@ public class ExplorerActivity extends Activity {
         });
     }
 
+    private void setSearchHint() {
+        final File file = new File(getCurrentFilePath());
+        final String rootPath = Environment.getExternalStorageDirectory().getPath();
+        final CharSequence hint;
+        if (file.getPath().equals(rootPath)) {
+            hint = getString(R.string.sdcard_short_name);
+        } else {
+            hint = file.getName();
+        }
+        mSearchView.setQueryHint(getString(R.string.search_hint, hint));
+    }
+
+    private void handleSearchIntent() {
+        final Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            final String query = intent.getStringExtra(SearchManager.QUERY);
+            doSearch(getCurrentFilePath(), query);
+        }
+    }
+
     @Override
     public Intent getIntent() {
         final Intent intent = super.getIntent();
@@ -202,6 +246,8 @@ public class ExplorerActivity extends Activity {
     public void onBackPressed() {
         if (shouldCloseZoomedImage()) {
             closeZoomedView();
+        } else if (mIsInSearchMode) { // probably already handled by super, but belt & suspenders...
+            mSearchItem.collapseActionView();
         } else if (mFileHistory.size() > 1) {
             mFileHistory.remove(mFileHistory.size() - 1);
             refreshCurrentFile(mPositionHistory.remove(mPositionHistory.size() - 1));
@@ -216,6 +262,8 @@ public class ExplorerActivity extends Activity {
         outState.putStringArrayList(FILE_HISTORY_LIST_KEY, mFileHistory);
         outState.putIntegerArrayList(KEY_POSITION_LIST, mPositionHistory);
         outState.putSerializable(KEY_CACHE_MAP, mSubFileMap);
+        outState.putBoolean(KEY_IS_IN_SEARCH_MODE, mIsInSearchMode);
+        outState.putCharSequence(KEY_STORED_QUERY, mSearchView.getQuery());
         if (mZipFragment != null) {
             getFragmentManager().putFragment(outState, KEY_ZIP_FRAGMENT, mZipFragment);
         }
@@ -225,11 +273,10 @@ public class ExplorerActivity extends Activity {
         if (mSortFragment != null) {
             getFragmentManager().putFragment(outState, KEY_SORT_FRAGMENT, mSortFragment);
         }
+        if (mSearchFragment != null) {
+            getFragmentManager().putFragment(outState, KEY_SEARCH_FRAGMENT, mSearchFragment);
+        }
         super.onSaveInstanceState(outState);
-    }
-
-    public void setSearchHint(CharSequence hint) {
-        mSearchView.setQueryHint(hint);
     }
 
     @Override
@@ -237,9 +284,28 @@ public class ExplorerActivity extends Activity {
         final MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.explorer, menu);
         final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mSearchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        mSearchItem = menu.findItem(R.id.search);
+        mSearchView = (SearchView) mSearchItem.getActionView();
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(true);
+        mSearchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                enterSearchMode();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                exitSearchMode();
+                return true;
+            }
+        });
+        if (mIsInSearchMode) {
+            mSearchItem.expandActionView();
+            mSearchView.setQuery(mStoredQuery, false);
+        }
+        setSearchHint();
         final int menuItemId;
         mSortBy = mPrefs.getInt(PREF_SORT_BY, SORT_BY_NAME_FOLDERS_FIRST);
         switch (mSortBy) {
@@ -266,7 +332,7 @@ public class ExplorerActivity extends Activity {
                 break;
         }
         menu.findItem(menuItemId).setChecked(true);
-        mFragment.refreshFile();
+        mFragment.refreshSubFileOrder();
         return true;
     }
 
@@ -303,7 +369,7 @@ public class ExplorerActivity extends Activity {
         if (startingSortBy != mSortBy) {
             mPrefs.edit().putInt(PREF_SORT_BY, mSortBy).apply();
             mSubFileMap.clear();
-            mFragment.refreshFile();
+            mFragment.refreshSubFileOrder();
         }
         return true;
     }
@@ -377,6 +443,9 @@ public class ExplorerActivity extends Activity {
     }
 
     public void doSort(final ArrayList<FileItem> fileItems) {
+        if (mSearchFragment != null) { // we will sort at the end of searching
+            return;
+        }
         final SortFragment fragment = (SortFragment)
                 getFragmentManager().findFragmentByTag(TAG_SORT_FRAGMENT);
         if (fragment != null) {
@@ -408,11 +477,52 @@ public class ExplorerActivity extends Activity {
         });
     }
 
+    private void enterSearchMode() {
+        mIsInSearchMode = true;
+    }
+
+    private void exitSearchMode() {
+        mIsInSearchMode = false;
+        mFragment.clearSubfiles();
+        mFragment.refreshFile();
+    }
+
+    public boolean isInSearchMode() {
+        return mIsInSearchMode;
+    }
+
+    private void doSearch(final String filePath, final String query) {
+        if (mSearchFragment != null) {
+            throw new RuntimeException("You are already searching");
+        }
+        mSearchFragment = new SearchFragment();
+        final Bundle bundle = new Bundle();
+        bundle.putString(SearchFragment.ARG_FILE_PATH, filePath);
+        bundle.putString(SearchFragment.ARG_QUERY, query);
+        mSearchFragment.setArguments(bundle);
+        getFragmentManager().beginTransaction().add(mSearchFragment, TAG_SEARCH_FRAGMENT).commit();
+    }
+
+    public void doCompletedSearching(final List<File> fileList) {
+        final ArrayList<FileItem> foundFileList = FileUtils.getFileItemList(fileList);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                getFragmentManager().beginTransaction().remove(mSearchFragment)
+                        .commitAllowingStateLoss();
+                mSearchFragment = null;
+                doSort(foundFileList);
+                mFragment.doCompletedSearching(foundFileList);
+            }
+        });
+    }
+
     private String getCurrentFilePath() {
         return mFileHistory.get(mFileHistory.size() - 1);
     }
 
     public final void cacheSubFiles(final File parentFile, final ArrayList<FileItem> oSubFiles) {
+        if (mIsInSearchMode) return; // never cache in search mode
         final ArrayList<FileItem> subFiles = new ArrayList<FileItem>(oSubFiles);
         // clear Drawable cache
         for (FileItem fileItem : subFiles) {
@@ -432,7 +542,7 @@ public class ExplorerActivity extends Activity {
     private boolean requestRootIfNeeded(final File file) {
         final String ex = Environment.getExternalStorageDirectory().getPath();
         final String ac = file.getPath();
-        return !((ex.contains(ac) && !ex.equals(ac)) || !ac.startsWith("/storage"));
+        return !((ex.contains(ac) && !ex.equals(ac)) || !ac.startsWith(getString(R.string.root_storage)));
     }
 
     public void zoomImage(final Drawable drawable, final Rect startBounds) {
