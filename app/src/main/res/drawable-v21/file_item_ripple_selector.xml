@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?android:colorControlHighlight">
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
@@ -8,4 +8,9 @@
         </shape>
     </item>
     <item android:drawable="@drawable/file_item_selector"/>
-</ripple>
+</ripple>-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/file_item_selector" />
+
+</selector>

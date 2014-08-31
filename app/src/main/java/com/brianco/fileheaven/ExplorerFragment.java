@@ -5,10 +5,8 @@ import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.XmlResourceParser;
-import android.graphics.Outline;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -141,9 +139,9 @@ public class ExplorerFragment extends Fragment {
         mFabPaste = (ImageButton) root.findViewById(R.id.fab_paste);
         //Outline
         final int size = getResources().getDimensionPixelSize(R.dimen.fab_size);
-        final Outline outline = new Outline();
+        /*final Outline outline = new Outline();
         outline.setOval(0, 0, size, size);
-        mFabPaste.setOutline(outline);
+        mFabPaste.setOutline(outline);*/
         return root;
     }
 
