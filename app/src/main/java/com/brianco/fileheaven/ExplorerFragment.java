@@ -141,11 +141,9 @@ public class ExplorerFragment extends Fragment {
         mFabPaste = (ImageButton) root.findViewById(R.id.fab_paste);
         //Outline
         final int size = getResources().getDimensionPixelSize(R.dimen.fab_size);
-        if (Build.VERSION.SDK_INT >= 20) {//TODO: don't do this in production
-            final Outline outline = new Outline();
-            outline.setOval(0, 0, size, size);
-            mFabPaste.setOutline(outline);
-        }
+        final Outline outline = new Outline();
+        outline.setOval(0, 0, size, size);
+        mFabPaste.setOutline(outline);
         return root;
     }
 
