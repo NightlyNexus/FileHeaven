@@ -83,7 +83,8 @@ public class SearchFragment extends Fragment {
 
         private void searchFile(final List<File> fileList,
                                 final File file, final String query) {
-            if (file.getName().contains(query) && !mFile.getPath().equals(file.getPath())) {
+            if (file.getName().toLowerCase().contains(query.toLowerCase())
+                    && !mFile.getPath().equals(file.getPath())) {
                 fileList.add(file);
                 mMessage = Html.fromHtml(getString(R.string.searching, mQuery, mFileName, fileList.size()));
                 publishProgress();
