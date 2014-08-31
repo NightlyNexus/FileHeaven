@@ -60,11 +60,16 @@ public class SearchFragment extends Fragment {
         super.onDetach();
     }
 
+    private void setSpannedMessage(final int num) {
+        mMessage = Html.fromHtml(getResources().getQuantityString(R.plurals.searching,
+                num, mQuery, mFileName, num));
+    }
+
     private class SearchTask extends AsyncTask<Void, Void, List<File>> {
 
         @Override
         protected void onPreExecute() {
-            mMessage = Html.fromHtml(getString(R.string.searching, mQuery, mFileName, 0));
+            setSpannedMessage(0);
             mPd.setMessage(mMessage);
         }
 
@@ -86,7 +91,7 @@ public class SearchFragment extends Fragment {
             if (file.getName().toLowerCase().contains(query.toLowerCase())
                     && !mFile.getPath().equals(file.getPath())) {
                 fileList.add(file);
-                mMessage = Html.fromHtml(getString(R.string.searching, mQuery, mFileName, fileList.size()));
+                setSpannedMessage(fileList.size());
                 publishProgress();
             }
             if (file.isDirectory()) {
