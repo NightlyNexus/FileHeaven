@@ -113,7 +113,8 @@ public class NewFileActivity extends ActionBarActivity {
 
     private void createFile(final String fileName, final boolean isDirectory) {
         if (fileName.length() <= 0) {
-            Toast.makeText(this, R.string.empty_name, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, isDirectory ? R.string.empty_name_dir
+                    : R.string.empty_name, Toast.LENGTH_SHORT).show();
             return;
         }
         final File newFile = new File(mParentPath + "/" + fileName);

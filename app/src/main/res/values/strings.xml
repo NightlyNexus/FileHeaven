@@ -83,6 +83,7 @@
     </plurals>
 
     <string name="empty_name">Enter name (followed by extension)</string>
+    <string name="empty_name_dir">Enter name</string>
 
     <string name="parent_directory_symbol">..</string>
 
