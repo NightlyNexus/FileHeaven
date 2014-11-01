@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -15,7 +16,7 @@ import com.brianco.fileheaven.R;
 
 import java.io.File;
 
-public class RenameActivity extends Activity {
+public class RenameActivity extends ActionBarActivity {
 
     public static final String EXTRA_FILE_OLD_PATH = "EXTRA_FILE_OLD_PATH";
     public static final String EXTRA_FILE_OLD_NAME = "EXTRA_FILE_OLD_NAME";

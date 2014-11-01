@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,7 +96,9 @@ public class ExplorerAdapter extends ArrayAdapter<FileItem> {
             holder.fileSize.setText(null);
             holder.sizeTask = null;
             holder.fileImage.setImageResource(R.drawable.ic_folder_up);
-            holder.fileImage.setImageAlpha(255);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                holder.fileImage.setImageAlpha(255);
+            }
             holder.imageTask = null;
             if (mIsInCheckedMode) {
                 holder.fileImage.setOnClickListener(null);
@@ -114,8 +117,10 @@ public class ExplorerAdapter extends ArrayAdapter<FileItem> {
         holder.file = mFileList.get(index);
         final String fileName = holder.file.getName();
         final String filePath = holder.file.getPath();
-        holder.fileImage.setImageAlpha(FileUtils.isHidden(fileName)
-                ? FileUtils.HIDDEN_FILE_ALPHA : 255);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            holder.fileImage.setImageAlpha(FileUtils.isHidden(fileName)
+                    ? FileUtils.HIDDEN_FILE_ALPHA : 255);
+        }
         holder.fileTitle.setText(fileName);
         holder.fileSize.setText(R.string.calculating);
         if (holder.file.size < 0) {

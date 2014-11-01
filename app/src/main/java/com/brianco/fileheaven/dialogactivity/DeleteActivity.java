@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -18,7 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteActivity extends Activity {
+public class DeleteActivity extends ActionBarActivity {
 
     public static final String EXTRA_FILES_TO_DELETE = "EXTRA_FILES_TO_DELETE";
 
@@ -34,6 +36,7 @@ public class DeleteActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delete);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setResult(Activity.RESULT_CANCELED);
         mListView = (ListView) findViewById(R.id.list_files_to_delete);
         mCancelButton = (Button) findViewById(R.id.cancel_delete);

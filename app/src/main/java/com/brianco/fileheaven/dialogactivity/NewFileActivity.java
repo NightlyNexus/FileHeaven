@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +18,7 @@ import com.brianco.fileheaven.R;
 import java.io.File;
 import java.io.IOException;
 
-public class NewFileActivity extends Activity {
+public class NewFileActivity extends ActionBarActivity {
 
     public static final String EXTRA_PARENT_PATH = "EXTRA_PARENT_PATH";
 
@@ -34,6 +36,7 @@ public class NewFileActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_file);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setResult(Activity.RESULT_CANCELED);
         mCancelButton = (Button) findViewById(R.id.cancel_new_file);
         mCreateButton = (Button) findViewById(R.id.confirm_create);

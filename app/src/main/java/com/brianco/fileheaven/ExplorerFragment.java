@@ -8,6 +8,7 @@ import android.content.res.XmlResourceParser;
 import android.graphics.Outline;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -17,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.ImageButton;
@@ -138,11 +140,18 @@ public class ExplorerFragment extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_explorer, container, false);
         mListView = (ListView) root.findViewById(R.id.list_view);
         mFabPaste = (ImageButton) root.findViewById(R.id.fab_paste);
-        //Outline
-        final int size = getResources().getDimensionPixelSize(R.dimen.fab_size);
-        final Outline outline = new Outline();
-        outline.setOval(0, 0, size, size);
-        mFabPaste.setOutline(outline);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //Outline
+            final ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    final int size = getResources().getDimensionPixelSize(R.dimen.fab_size);
+                    outline.setOval(0, 0, size, size);
+                }
+            };
+            mFabPaste.setOutlineProvider(viewOutlineProvider);
+        }
         return root;
     }
 
@@ -241,6 +250,8 @@ public class ExplorerFragment extends Fragment {
             position = mAdapter.getCount();
         }
         final int pos = position;
+        mListView.clearChoices();
+        mListView.setChoiceMode(mListView.getChoiceMode()); // hack to close CAB
         mListView.clearFocus();
         mListView.post(new Runnable() {
             @Override
@@ -568,8 +579,8 @@ public class ExplorerFragment extends Fragment {
             wasCached = false;
             fileItems = newFiles;
         } else {
-            wasCached = true;
-            updateOriginalList(fileItems, newFiles);
+            // wasCached is true; statement is normally true, unless files have been added
+            wasCached = !updateOriginalList(fileItems, newFiles);
         }
         updateOriginalList(mSubFiles, fileItems);
         ((ExplorerActivity) getActivity()).cacheSubFiles(mFile, mSubFiles);
@@ -578,7 +589,9 @@ public class ExplorerFragment extends Fragment {
         }
     }
 
-    private static <T> void updateOriginalList(List<T> originalList, List<T> newList) {
+    private static <T> boolean updateOriginalList(final List<T> originalList,
+                                                  final List<T> newList) {
+        boolean originalListAddedTo = false;
         final Iterator<T> iter = originalList.iterator();
         while (iter.hasNext()) {
             final T item = iter.next();
@@ -589,8 +602,10 @@ public class ExplorerFragment extends Fragment {
         for (T fileItem : newList) {
             if (!originalList.contains(fileItem)) {
                 originalList.add(fileItem);
+                originalListAddedTo = true;
             }
         }
+        return originalListAddedTo;
     }
 
     public void doCompletedSorting(final List<Integer> result) {

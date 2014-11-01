@@ -1,32 +1,33 @@
 <resources>
 
-    <style name="AppTheme" parent="AppBaseTheme">
-        <item name="android:actionBarStyle">@style/TealActionBar</item>
-        <item name="android:actionModeBackground">@color/action_mode_background</item>
-        <item name="android:actionButtonStyle">@style/HeavenActionButtonStyle</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/heaven_teal</item>
+        <!--   darker variant of colorPrimary (for status bar, contextual app bars) -->
+        <item name="colorPrimaryDark">@color/heaven_teal_dark</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">@color/heaven_yellow</item>
+        <item name="colorControlHighlight">@color/heaven_yellow</item>
+
+        <item name="actionBarStyle">@style/TealActionBar</item>
+        <item name="actionModeBackground">@color/action_mode_background</item>
+        <item name="actionButtonStyle">@style/HeavenActionButtonStyle</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/sort_by_selector</item>
     </style>
 
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar"/>
-
-    <style name="TealActionBar" parent="android:Widget.ActionBar">
-        <item name="android:background">@color/heaven_teal</item>
-        <item name="android:displayOptions"/>
+    <style name="TealActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="background">@color/heaven_teal</item>
+        <item name="displayOptions"/>
     </style>
 
-    <style name="HeavenActionButtonStyle" parent="android:Widget.ActionButton">
-        <item name="android:padding">4dp</item>
+    <style name="HeavenActionButtonStyle" parent="Widget.AppCompat.ActionButton">
+        <item name="android:padding">@dimen/action_button_padding</item>
     </style>
 
-    <style name="DialogTheme" parent="DialogThemeBase"/>
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog"/>
 
-    <style name="DialogThemeBase" parent="android:Theme.Holo.Light.Dialog"/>
-
-    <style name="TextAppearance.Title.Path" parent="TextAppearance.Title.Path.Base">
+    <style name="TextAppearance.Title.Path" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/title_color</item>
         <item name="android:textSize">@dimen/title_text</item>
     </style>
-
-    <style name="TextAppearance.Title.Path.Base" parent="android:TextAppearance.Holo.Widget.ActionBar.Title"/>
 
 </resources>

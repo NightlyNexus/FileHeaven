@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -16,7 +17,7 @@ import com.brianco.fileheaven.R;
 import java.io.File;
 import java.util.ArrayList;
 
-public class ZipActivity extends Activity {
+public class ZipActivity extends ActionBarActivity {
 
     public static final String EXTRA_PARENT_FILE_PATH = "EXTRA_PARENT_FILE_PATH";
     public static final String EXTRA_ZIP_FILE_PATHS = "EXTRA_ZIP_FILE_PATHS";

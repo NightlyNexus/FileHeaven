@@ -19,6 +19,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,7 +31,6 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.brianco.fileheaven.dialogactivity.NewFileActivity;
@@ -44,7 +46,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class ExplorerActivity extends Activity {
+public class ExplorerActivity extends ActionBarActivity {
 
     public static final String PREF_SORT_BY = "PREF_SORT_BY";
     public static final int SORT_BY_NAME_FOLDERS_FIRST = 0;
@@ -105,10 +107,10 @@ public class ExplorerActivity extends Activity {
         mTitleScrollView = (HorizontalScrollView)
                 LayoutInflater.from(this).inflate(R.layout.title, null);
         mTitleView = (ViewGroup) mTitleScrollView.findViewById(R.id.title);
-        getActionBar().setDisplayShowHomeEnabled(false);
-        getActionBar().setDisplayShowTitleEnabled(false);
-        getActionBar().setDisplayShowCustomEnabled(true);
-        getActionBar().setCustomView(mTitleScrollView);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(mTitleScrollView);
         if (savedInstanceState == null) {
             mIsInSearchMode = false;
             mFileHistory = new ArrayList<String>();
@@ -285,10 +287,11 @@ public class ExplorerActivity extends Activity {
         inflater.inflate(R.menu.explorer, menu);
         final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchItem = menu.findItem(R.id.search);
-        mSearchView = (SearchView) mSearchItem.getActionView();
+        mSearchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(true);
-        mSearchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+        MenuItemCompat.setOnActionExpandListener(mSearchItem,
+                new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 enterSearchMode();
