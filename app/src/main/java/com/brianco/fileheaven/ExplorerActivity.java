@@ -74,6 +74,7 @@ public class ExplorerActivity extends ActionBarActivity {
 
     private boolean mIsInSearchMode;
     private CharSequence mStoredQuery;
+    private MenuItem mAddNewFileMenuItem;
     private MenuItem mSearchItem;
     private int mShortAnimationDuration;
     private Rect mStartBounds;
@@ -285,6 +286,7 @@ public class ExplorerActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         final MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.explorer, menu);
+        mAddNewFileMenuItem = menu.findItem(R.id.new_file);
         final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchItem = menu.findItem(R.id.search);
         mSearchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
@@ -388,6 +390,8 @@ public class ExplorerActivity extends ActionBarActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == NEW_FILE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+                final String newFilePath =
+                        data.getStringExtra(NewFileActivity.EXTRA_NEW_FILE_PATH);
                 mFragment.refreshFile();
             }
         }
@@ -482,10 +486,14 @@ public class ExplorerActivity extends ActionBarActivity {
 
     private void enterSearchMode() {
         mIsInSearchMode = true;
+        mAddNewFileMenuItem.setEnabled(false);
+        mAddNewFileMenuItem.setVisible(false);
     }
 
     private void exitSearchMode() {
         mIsInSearchMode = false;
+        mAddNewFileMenuItem.setEnabled(true);
+        mAddNewFileMenuItem.setVisible(true);
         mFragment.clearSubfiles();
         mFragment.refreshFile();
     }

@@ -21,6 +21,7 @@ import java.io.IOException;
 public class NewFileActivity extends ActionBarActivity {
 
     public static final String EXTRA_PARENT_PATH = "EXTRA_PARENT_PATH";
+    public static final String EXTRA_NEW_FILE_PATH = "EXTRA_NEW_FILE_PATH";
 
     private static final String KEY_PARENT_PATH = "KEY_PARENT_PATH";
 
@@ -121,17 +122,21 @@ public class NewFileActivity extends ActionBarActivity {
         try {
             if (isDirectory && newFile.mkdir() || newFile.createNewFile()) {
                 Toast.makeText(this, getString(R.string.file_created, fileName), Toast.LENGTH_SHORT).show();
+                final Intent resultIntent = new Intent();
+                resultIntent.putExtra(EXTRA_NEW_FILE_PATH, newFile.getPath());
+                setResult(Activity.RESULT_OK, resultIntent);
             } else {
                 final int res = isDirectory
                         ? R.string.failed_create_exists_folder
                         : R.string.failed_create_exists_file;
                 Toast.makeText(this, res, Toast.LENGTH_LONG).show();
+                setResult(Activity.RESULT_OK);
             }
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, R.string.failed_create_unknown, Toast.LENGTH_LONG).show();
+            setResult(Activity.RESULT_CANCELED);
         }
-        setResult(Activity.RESULT_OK);
         finish();
     }
 }
